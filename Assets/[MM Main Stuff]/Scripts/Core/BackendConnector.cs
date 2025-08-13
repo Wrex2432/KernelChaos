@@ -68,8 +68,15 @@ public class BackendConnector : MonoBehaviour {
     public string gameType;
     public string location;
 
+
+    // Reference to the PlayerSpawner
+    public PlayerSpawner playerSpawner;
+
     [Header("UI")]                             // NEW
     [SerializeField] private TMP_Text codeText; // NEW – drag your TMP_Text here in Inspector
+
+
+
 
 
     void Awake() {
@@ -112,6 +119,7 @@ public class BackendConnector : MonoBehaviour {
             case "playerJoin":
                 var join = JsonUtility.FromJson<PlayerJoinMessage>(msg);
                 PlayerTracker.Instance.RegisterPlayer(join.username, join.team);
+                playerSpawner.SpawnPlayer(join.username);
                 break;
 
             case "action":
