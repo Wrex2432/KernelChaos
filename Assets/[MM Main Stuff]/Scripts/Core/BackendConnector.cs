@@ -69,6 +69,7 @@ public class BackendConnector : MonoBehaviour
     public string gameType;
     public string location;
 
+<<<<<<< HEAD
     public GameObject kernelChaosPrefab;
 
     [Header("UI")]
@@ -76,6 +77,13 @@ public class BackendConnector : MonoBehaviour
 
     void Awake()
     {
+=======
+    [Header("UI")]                             // NEW
+    [SerializeField] private TMP_Text codeText; // NEW – drag your TMP_Text here in Inspector
+
+
+    void Awake() {
+>>>>>>> parent of 5c711e3 (PUSHPUSHPUSH)
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
     }
@@ -112,10 +120,18 @@ public class BackendConnector : MonoBehaviour
     {
         var baseMsg = JsonUtility.FromJson<WebMessageBase>(msg);
 
+<<<<<<< HEAD
         switch (baseMsg.type)
         {
             case "playerAction":
                 var actionMsg = JsonUtility.FromJson<PlayerActionMessage>(msg);
+=======
+        switch (baseMsg.type) {
+            case "playerJoin":
+                var join = JsonUtility.FromJson<PlayerJoinMessage>(msg);
+                PlayerTracker.Instance.RegisterPlayer(join.username, join.team);
+                break;
+>>>>>>> parent of 5c711e3 (PUSHPUSHPUSH)
 
                 if (actionMsg.action == "move")
                 {
