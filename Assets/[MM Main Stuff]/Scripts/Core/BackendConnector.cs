@@ -70,6 +70,7 @@ public class BackendConnector : MonoBehaviour
     public string location;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     public GameObject kernelChaosPrefab;
 
     [Header("UI")]
@@ -78,6 +79,8 @@ public class BackendConnector : MonoBehaviour
     void Awake()
     {
 =======
+=======
+>>>>>>> parent of 5c711e3 (PUSHPUSHPUSH)
     [Header("UI")]                             // NEW
     [SerializeField] private TMP_Text codeText; // NEW – drag your TMP_Text here in Inspector
 
