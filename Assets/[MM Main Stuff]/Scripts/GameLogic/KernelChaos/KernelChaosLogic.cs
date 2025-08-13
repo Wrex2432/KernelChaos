@@ -1,84 +1,102 @@
-﻿// [KC] Kernel Chaos - constructor-based game logic matching IGameLogicHandler
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class KernelChaosLogic : IGameLogicHandler {
+public class KernelChaosLogic : IGameLogicHandler
+{
     private readonly GameObject _playerPrefab;
     private readonly List<Transform> _spawnPoints = new();
     private int _nextSpawnIndex = 0;
 
-    // Matches GameLogicRegistry: new KernelChaosLogic(kernelChaosPrefab)
-    public KernelChaosLogic (GameObject playerPrefab) {
+    // Constructor that initializes the prefab and spawn points
+    public KernelChaosLogic(GameObject playerPrefab)
+    {
         _playerPrefab = playerPrefab;
         CacheSpawnPoints();
     }
 
-    private void CacheSpawnPoints () {
+    // Cache spawn points from the scene
+    private void CacheSpawnPoints()
+    {
         _spawnPoints.Clear();
 
-        // Preferred: parent named "KC_SpawnPoints" with child points
         var parent = GameObject.Find("KC_SpawnPoints");
-        if (parent != null) {
-            foreach (Transform t in parent.transform) {
+        if (parent != null)
+        {
+            foreach (Transform t in parent.transform)
+            {
                 if (t != null) _spawnPoints.Add(t);
             }
         }
 
-        // Fallback: any transforms named like "KC_SpawnPoint_*"
-        if (_spawnPoints.Count == 0) {
-            var all = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsSortMode.None);
-            foreach (var t in all) {
-                if (t == null) continue;
-                if (t.name.StartsWith("KC_SpawnPoint", StringComparison.OrdinalIgnoreCase)) {
-                    _spawnPoints.Add(t);
-                }
-            }
-        }
-
-        if (_spawnPoints.Count == 0) {
-            Debug.LogWarning("🌽 [KC] No spawn points found. Create 'KC_SpawnPoints' with children, or name children 'KC_SpawnPoint_01' etc.");
+        if (_spawnPoints.Count == 0)
+        {
+            Debug.LogWarning("🌽 [KC] No spawn points found.");
         }
     }
 
-    public GameObject SpawnPlayer (string username, string team = null) {
-        if (_playerPrefab == null) {
+    // Spawn a player at a random spawn point
+    public GameObject SpawnPlayer(string username, string team = null)
+    {
+        if (_playerPrefab == null)
+        {
             Debug.LogError("🌽 [KC] Missing player prefab.");
             return null;
         }
 
-        Transform sp = null;
-        if (_spawnPoints.Count > 0) {
-            if (_nextSpawnIndex >= _spawnPoints.Count) _nextSpawnIndex = 0;
-            sp = _spawnPoints[_nextSpawnIndex++];
-        }
-
-        var pos = sp ? sp.position : Vector3.zero;
-        var rot = sp ? sp.rotation : Quaternion.identity;
+        Transform sp = _spawnPoints[_nextSpawnIndex++ % _spawnPoints.Count];
+        var pos = sp.position;
+        var rot = sp.rotation;
 
         var go = UnityEngine.Object.Instantiate(_playerPrefab, pos, rot);
-        var p = go.GetComponent<PlayerKernelChaos>();
-        if (p != null) p.Initialize(string.IsNullOrWhiteSpace(username) ? "Player" : username);
+        var playerScript = go.GetComponent<PlayerKernelChaos>();
+        if (playerScript != null)
+        {
+            playerScript.Initialize(username);  // Initialize the player's avatar
+        }
 
-        Debug.Log($"🌽 [KC] Spawned '{username}' at {(sp ? sp.name : "origin")}");
+        Debug.Log($"🌽 [KC] Spawned '{username}' at {sp.name}");
         return go;
     }
 
-    public void HandleAction (GameObject playerObject, string action) {
-        // Reserved for web actions later; noop for now
+    // Handle actions from players, such as movement, jump, etc.
+    public void HandleAction(GameObject playerObject, string action)
+    {
         if (playerObject == null || string.IsNullOrEmpty(action)) return;
-        Debug.Log($"🌽 [KC] HandleAction: {playerObject.name} -> {action}");
+
+        // For now, log the action
+        Debug.Log($"🌽 [KC] Player {playerObject.name} performing action: {action}");
+
+        // Add custom action handling here (movement, jump, etc.)
+        if (action == "move")
+        {
+            // Handle movement (e.g., using velocity or position)
+        }
+        else if (action == "jump")
+        {
+            // Handle jump action
+        }
     }
 
-    public void OnPlayerJoin (string username, string team = null) {
+    // Called when the game starts
+    public void OnStartGame()
+    {
+        // Game start logic here
+        Debug.Log("🌽 [KC] Game Started");
+    }
+
+    // Called when the game ends
+    public void OnEndGame()
+    {
+        // Game end logic here
+        Debug.Log("🌽 [KC] Game Ended");
+    }
+
+    // Handle player joining the game
+    public void OnPlayerJoin(string username, string team = null)
+    {
+        // Call the spawn player method when a player joins
+        Debug.Log($"🌽 [KC] Player {username} joining the game.");
         SpawnPlayer(username, team);
-    }
-
-    public void OnStartGame () {
-        Debug.Log("🌽 [KC] OnStartGame");
-    }
-
-    public void OnEndGame () {
-        Debug.Log("🌽 [KC] OnEndGame");
     }
 }
